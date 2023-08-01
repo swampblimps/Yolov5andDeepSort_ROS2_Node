@@ -1,0 +1,19 @@
+#Gstreamer for Orange PI
+#Receiver
+sudo -E gst-launch-1.0 udpsrc port=3000 ! application/x-rtp, encoding-name=H264, payload=96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! autovideosink
+
+#Sender Orange Pi
+
+gst-launch-1.0 v4l2src device=/dev/video0 ! jpegdec ! mpph264enc ! h264parse ! rtph264pay ! udpsink host= 192.168.0.200 port=3000
+
+
+#FFMPEG for Raspberry Pi 
+
+#Sender Pi
+ffmpeg -fflags nobuffer -flags low_delay -hide_banner -f v4l2 -i /dev/video0 -c:v h264_v4l2m2m -filter:v crop=1920:960 -pix_fmt yuv420p -b:v 8M -tune zerolatency -threads 0 -vcodec h264_v4l2m2m -f mpegts udp://192.168.0.200:3000
+
+
+#Receiver
+
+ffplay -fflags nobuffer -framedrop -flags low_delay -threads 0 udp://192.168.200:3000
+
