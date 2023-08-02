@@ -17,3 +17,20 @@ ffmpeg -fflags nobuffer -flags low_delay -hide_banner -f v4l2 -i /dev/video0 -c:
 
 ffplay -fflags nobuffer -framedrop -flags low_delay -threads 0 udp://192.168.200:3000
 
+
+
+#Setup 
+#Install from
+https://github.com/Joshua-Riek/ubuntu-rockchip/releases with a desktop version
+Install gstreamer dependencies talked about at the end of this discussion forum:
+
+sudo add-apt-repository ppa:liujianfeng1994/panfork-mesa            
+sudo add-apt-repository ppa:liujianfeng1994/rockchip-multimedia     
+sudo apt update
+sudo apt install mali-g610-firmware rockchip-multimedia-config
+
+sudo apt install gstreamer1.0-plugins-base-apps
+sudo apt install gstreamer1.0-plugins-bad
+sudo apt install gstreamer1.0-plugins-good
+sudo apt install gstreamer1.0-plugins-ugly 
+https://forum.armbian.com/topic/28670-how-i-can-use-hardware-acceleration-to-encodetranscode-video-on-orange-pi-5-using-ffmpeg-or-i-need-to-use-gstreamer/
