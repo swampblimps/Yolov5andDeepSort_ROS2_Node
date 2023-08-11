@@ -118,6 +118,8 @@ class track_ros(Node):
 
         self.br = CvBridge()
         self.current_frame = np.ones((1280, 1280, 3), dtype = np.uint8)
+        self.current_time_sec = int(0)
+        self.current_time_ns = int(0)
         self.load_model()
         self.get_logger().info('Tracker Node Initialized')
 
@@ -128,8 +130,10 @@ class track_ros(Node):
         paddedImage = self.padRosImageForYolo()
         balloon_vals, y_goal_vals,o_goal_vals = self.detect_callback(paddedImage)
         
-
-        msg = BoundingBox(x_center_balloon=balloon_vals["xCenter"],y_center_balloon=balloon_vals["yCenter"],width_balloon=balloon_vals["Width"],height_balloon=balloon_vals["Height"],
+        headervals = Header()
+        headervals.stamp.sec = self.current_time_sec
+        headervals.stamp.nanosec = self.current_time_ns
+        msg = BoundingBox(header = headervals,x_center_balloon=balloon_vals["xCenter"],y_center_balloon=balloon_vals["yCenter"],width_balloon=balloon_vals["Width"],height_balloon=balloon_vals["Height"],
                             x_center_y_goal=y_goal_vals["xCenter"],y_center_y_goal=y_goal_vals["yCenter"],width_y_goal=y_goal_vals["Width"],height_y_goal=y_goal_vals["Height"],
                             x_center_o_goal=o_goal_vals["xCenter"],y_center_o_goal=o_goal_vals["yCenter"],width_o_goal=o_goal_vals["Width"],height_o_goal=o_goal_vals["Height"])
         self.pub_bbox.publish(msg)
@@ -167,6 +171,8 @@ class track_ros(Node):
 
     def rect_callback(self,data):
         self.current_frame = self.br.imgmsg_to_cv2(data)
+        self.current_time_sec = self.current_frame.header.stamp.sec
+        self.current_time_ns = self.current_frame.header.stamp.nanosec
 
  
     def load_model(self):
