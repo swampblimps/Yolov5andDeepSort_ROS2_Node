@@ -120,6 +120,7 @@ class track_ros(Node):
         self.current_frame = np.ones((1280, 1280, 3), dtype = np.uint8)
         self.current_time_sec = int(0)
         self.current_time_ns = int(0)
+        self.current_frame_id = ''
         self.load_model()
         self.get_logger().info('Tracker Node Initialized')
 
@@ -133,6 +134,7 @@ class track_ros(Node):
         headervals = Header()
         headervals.stamp.sec = self.current_time_sec
         headervals.stamp.nanosec = self.current_time_ns
+        headervals.frame_id = self.current_frame_id
         msg = BoundingBox(header = headervals,x_center_balloon=balloon_vals["xCenter"],y_center_balloon=balloon_vals["yCenter"],width_balloon=balloon_vals["Width"],height_balloon=balloon_vals["Height"],
                             x_center_y_goal=y_goal_vals["xCenter"],y_center_y_goal=y_goal_vals["yCenter"],width_y_goal=y_goal_vals["Width"],height_y_goal=y_goal_vals["Height"],
                             x_center_o_goal=o_goal_vals["xCenter"],y_center_o_goal=o_goal_vals["yCenter"],width_o_goal=o_goal_vals["Width"],height_o_goal=o_goal_vals["Height"])
@@ -171,8 +173,9 @@ class track_ros(Node):
 
     def rect_callback(self,data):
         self.current_frame = self.br.imgmsg_to_cv2(data)
-        self.current_time_sec = self.current_frame.header.stamp.sec
-        self.current_time_ns = self.current_frame.header.stamp.nanosec
+        self.current_time_sec = data.header.stamp.sec
+        self.current_time_ns = data.header.stamp.nanosec
+        self.current_frame_id = data.header.frame_id
 
  
     def load_model(self):
