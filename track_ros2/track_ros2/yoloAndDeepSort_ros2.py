@@ -69,7 +69,7 @@ class track_ros(Node):
         self.declare_parameter('source','0')
         self.declare_parameter('deep_sort_model', str(ROOT) + '/config/osnet_ibn_x1_0_MSMT17')
         self.declare_parameter('config_deepsort', str(ROOT) +'/deep_sort/configs/deep_sort.yaml')
-        self.declare_parameter('imgsz', [736,736])
+        self.declare_parameter('imgsz', [1280,1280])
         self.declare_parameter('conf_thres', 0.5)
         self.declare_parameter('iou_thres', 0.5)
         self.declare_parameter('max_det', 1000)
@@ -117,7 +117,7 @@ class track_ros(Node):
         self.half &= self.device.type != 'cpu'  # half precision only supported on CUDA
 
         self.br = CvBridge()
-        self.current_frame = np.ones((736, 736, 3), dtype = np.uint8)
+        self.current_frame = np.ones((1280, 1280, 3), dtype = np.uint8)
         self.load_model()
         self.get_logger().info('Tracker Node Initialized')
 
@@ -258,7 +258,7 @@ class track_ros(Node):
                 # print(type(img.cpu()))
                 # print(type(np.array(img.cpu())))
                 # print(np.reshape(img.cpu(),(576,736,3)).shape)
-                arrImage = np.reshape(img.cpu().numpy(),(576,736,3))
+                arrImage = np.reshape(img.cpu().numpy(),(960,1280,3)) #height, width (960,1280)
                 correctedImage = cv2.cvtColor(arrImage, cv2.COLOR_RGB2BGR).astype(np.uint8)
                 outputs = self.deepsort.update(xywhs.cpu(), confs.cpu(), clss.cpu(), correctedImage)
                 t5 = time_sync()
