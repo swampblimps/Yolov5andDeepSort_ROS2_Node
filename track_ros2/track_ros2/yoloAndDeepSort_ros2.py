@@ -55,9 +55,9 @@ class track_ros(Node):
     def __init__(self):
         super().__init__('track_ros')
 
-        self.pub_bbox = self.create_publisher(BoundingBox, 'track/bounding_box',10)
-        self.rect_image_subcriber = self.create_subscription(Image,'BurnCreamBlimp/left/image_rect_color', self.rect_callback,1)
-        self.tracker_polling_rate = self.create_timer(1,self.tracker_callback)
+        self.pub_bbox = self.create_publisher(BoundingBox, 'bounding_box',10)
+        self.rect_image_subcriber = self.create_subscription(Image,'left/image_raw', self.rect_callback,10)
+        self.tracker_polling_rate = self.create_timer(0.033,self.tracker_callback) #publish rate changed to ~30 Hz 
         #Parameters
         # FILE = Path(__file__).resolve()
         # ROOT = FILE.parents[0]  # yolov5 deepsort root directory
@@ -65,7 +65,7 @@ class track_ros(Node):
         #     sys.path.append(str(ROOT))  # add ROOT to PATH
         # ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-        self.declare_parameter('yolo_model', str(ROOT) + '/weights/best_test_720p_4.pt')
+        self.declare_parameter('yolo_model', str(ROOT) + '/weights/best_test_960p.pt') #name of the model (put it in the weights folder)
         self.declare_parameter('source','0')
         self.declare_parameter('deep_sort_model', str(ROOT) + '/config/osnet_ibn_x1_0_MSMT17')
         self.declare_parameter('config_deepsort', str(ROOT) +'/deep_sort/configs/deep_sort.yaml')
@@ -295,12 +295,19 @@ class track_ros(Node):
 
                             #A more efficient way to find the largest detection is possible, but this will work for now.
                         info = {"class":int(c),"ID":int(id),"xCenter":int(xCenter), "yCenter":int(yCenter),"Radius":int(radius),"Width":int(width),"Height":int(height), "Area": int(width*height),"Confidence":int(conf.cpu().numpy())}
+                        #Updated 9/22/23 as of settings in label studio
                         if c == 0 and balloon_vals["Area"]<= width*height:
                             balloon_vals = info
-                        if c == 1 and y_goal_vals["Area"]<=width*height:
-                            y_goal_vals = info
+                       #TODO: Add in functionality for red and blue blimps when needed
+                       # if c == 1 and blue_blimp_vals["Area"]<=width*height:
+                          #  blue_blimp_vals = info
+                        #if c == 3 and red_blimp_vals["Area"]<= width*height:
+                           # red_blimp_vals = info
                         if c == 2 and o_goal_vals["Area"]<= width*height:
                             o_goal_vals = info
+                        if c == 4 and y_goal_vals["Area"]<=width*height:
+                            y_goal_vals = info
+
                     
 
                 # LOGGER.info(f'{s}Done. YOLO:({t3 - t2:.3f}s), DeepSort:({t5 - t4:.3f}s)')
